@@ -373,6 +373,7 @@ renderer.render = function (buffer, parsed_content)
 		latex = require("markview.renderers.latex"),
 		yaml = require("markview.renderers.yaml"),
 		typst = require("markview.renderers.typst"),
+		strictdoc = require("markview.renderers.strictdoc"),
 	};
 
 	renderer.cache = {};
@@ -477,6 +478,7 @@ renderer.clear = function (buffer, from, to, hybrid_mode)
 		latex = require("markview.renderers.latex");
 		yaml = require("markview.renderers.yaml");
 		typst = require("markview.renderers.typst");
+		strictdoc = require("markview.renderers.strictdoc"),
 	};
 
 	local langs = vim.tbl_keys(_renderers);
