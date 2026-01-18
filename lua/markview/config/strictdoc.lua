@@ -1,6 +1,10 @@
 return {
 	highlights = {
 		strictdoc_document_title = "RenderMarkdownH1",
+		strictdoc_title = "Title",
+		strictdoc_link = "Label",
+		strictdoc_anchor = "Function",
+		strictdoc_uid = "Constant",
 	},
 
 	icons = {

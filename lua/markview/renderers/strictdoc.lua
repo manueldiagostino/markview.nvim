@@ -23,16 +23,10 @@ strictdoc.conceal = function(buffer, item)
 	})
 end
 
---- Renders the section title
----@param buffer integer
----@param item table
 strictdoc.document_title = function(buffer, item)
-	-- Retrieve specific configuration for titles
-	-- Looks in: spec.config.strictdoc.highlights
 	local main_config = spec.get({ "strictdoc", "highlights" }, { fallback = nil })
 	local icons = spec.get({ "strictdoc", "icons" }, { fallback = nil })
 
-	-- If configuration is missing, stop rendering
 	if not main_config or not icons then
 		return
 	end
@@ -40,7 +34,6 @@ strictdoc.document_title = function(buffer, item)
 	local hl_group = main_config.strictdoc_document_title
 	local icon = icons.strictdoc_document_title
 
-	-- If specific values are missing, stop rendering
 	if not hl_group or not icon then
 		return
 	end
@@ -59,6 +52,58 @@ strictdoc.document_title = function(buffer, item)
 			{ icon .. " ", utils.set_hl(hl_group) },
 		},
 		virt_text_pos = "inline",
+	})
+end
+
+strictdoc.link = function(buffer, item)
+	local config = spec.get({ "strictdoc", "highlights" }, { fallback = {} })
+	local hl = config.strictdoc_link or "Underlined"
+	local range = item.range
+
+	vim.api.nvim_buf_set_extmark(buffer, strictdoc.ns, range.row_start, range.col_start, {
+		end_row = range.row_end,
+		end_col = range.col_end,
+		conceal = "",
+		virt_text = { { "🔗 " .. item.text[1], hl } },
+		virt_text_pos = "inline",
+	})
+end
+
+strictdoc.anchor = function(buffer, item)
+	local config = spec.get({ "strictdoc", "highlights" }, { fallback = {} })
+	local hl = config.strictdoc_anchor or "Special"
+	local range = item.range
+
+	vim.api.nvim_buf_set_extmark(buffer, strictdoc.ns, range.row_start, range.col_start, {
+		end_row = range.row_end,
+		end_col = range.col_end,
+		conceal = "",
+		virt_text = { { "⚓ " .. item.text[1], hl } },
+		virt_text_pos = "inline",
+	})
+end
+
+strictdoc.uid = function(buffer, item)
+	local config = spec.get({ "strictdoc", "highlights" }, { fallback = {} })
+	local hl = config.strictdoc_uid or "Constant"
+
+	vim.api.nvim_buf_set_extmark(buffer, strictdoc.ns, item.range.row_start, item.range.col_start, {
+		end_row = item.range.row_end,
+		end_col = item.range.col_end,
+		hl_group = hl,
+	})
+end
+
+strictdoc.block_marker = function(buffer, item)
+	local range = item.range
+	local symbol = item.type == "start" and "❝" or "❞"
+
+	vim.api.nvim_buf_set_extmark(buffer, strictdoc.ns, range.row_start, range.col_start, {
+		end_row = range.row_end,
+		end_col = range.col_end,
+		conceal = "",
+		virt_text = { { symbol, "Comment" } },
+		virt_text_pos = "overlay",
 	})
 end
 

@@ -40,6 +40,37 @@ strictdoc.document_title = function(buffer, TSNode, text, range)
 	})
 end
 
+strictdoc.link = function(buffer, TSNode, text, range)
+	local uid = text[1]:match("LINK:%s*([%w%-%_%.]+)") or text[1]
+
+	strictdoc.insert({
+		class = "strictdoc_link",
+		text = { uid },
+		range = range,
+	})
+end
+
+strictdoc.anchor = function(buffer, TSNode, text, range)
+	local uid = text[1]:match("ANCHOR:%s*([%w%-%_%.]+)") or text[1]
+	strictdoc.insert({
+		class = "strictdoc_anchor",
+		text = { uid },
+		range = range,
+	})
+end
+
+strictdoc.block_start = function(buffer, TSNode, text, range)
+	strictdoc.insert({ class = "strictdoc_block_marker", type = "start", range = range })
+end
+
+strictdoc.block_end = function(buffer, TSNode, text, range)
+	strictdoc.insert({ class = "strictdoc_block_marker", type = "end", range = range })
+end
+
+strictdoc.uid = function(buffer, TSNode, text, range)
+	strictdoc.insert({ class = "strictdoc_uid", text = text, range = range })
+end
+
 --- StrictDoc parser function.
 ---@param buffer integer
 ---@param TSTree table
@@ -60,6 +91,13 @@ strictdoc.parse = function(buffer, TSTree, from, to)
 			":" @strictdoc.conceal
 			title: (single_line_string) @strictdoc.document_title
 		)
+        (inline_link) @strictdoc.link
+        (anchor) @strictdoc.anchor
+
+        (multiline_opening_token) @strictdoc.block_start
+        (multiline_closing_token) @strictdoc.block_end
+
+        (sdoc_node_field_uid (uid_string) @strictdoc.uid)
 		]]
 	)
 
