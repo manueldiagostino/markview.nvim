@@ -107,6 +107,7 @@ parser.init = function(buffer, from, to, cache)
 		typst = require("markview.parsers.typst"),
 		yaml = require("markview.parsers.yaml"),
 		strictdoc = require("markview.parsers.strictdoc"),
+		rst = require("markview.parsers.rst"),
 	}
 
 	-- Clear the previous contents

@@ -1,15 +1,15 @@
 ---@diagnostic disable: undefined-field
 
-local renderer = {};
-local health = require("markview.health");
+local renderer = {}
+local health = require("markview.health")
 
 ---@type markview.parsed
-renderer.cache = {};
+renderer.cache = {}
 
 renderer.__filter_cache = {
 	config = nil,
-	result = nil
-};
+	result = nil,
+}
 
 ---@type markview.renderer.option_maps
 renderer.option_maps = {
@@ -90,11 +90,10 @@ renderer.option_maps = {
 	},
 	yaml = {
 		properties = { "yaml_property" },
-	}
+	},
 
 	---|fE
-};
-
+}
 
 --[[
 Creates a list of node classes that should be shown as *raw text*.
@@ -121,57 +120,61 @@ a • c d • f
 ]]
 ---@param filter? markview.config.preview.raw
 ---@return markview.renderer.option_map
-local _filter = function (filter)
+local _filter = function(filter)
 	---|fS
 
-	filter = filter or require("markview.spec").get({ "preview", "raw_previews" }, { fallback = {}, ignore_enable = true });
+	filter = filter
+		or require("markview.spec").get({ "preview", "raw_previews" }, { fallback = {}, ignore_enable = true })
 
-	local valid = {};
+	local valid = {}
 
-	for language --[[@as string]], map --[[@as string[] ]] in pairs(renderer.option_maps) do
-		local lang_filter = filter[language] or {};
-		local has_inclusions = false;
+	for
+		language, --[[@as string]]
+		map --[[@as string[] ]]
+	in pairs(renderer.option_maps) do
+		local lang_filter = filter[language] or {}
+		local has_inclusions = false
 
 		for _, rule in ipairs(lang_filter) do
 			if string.match(rule, "^[^!]") then
-				has_inclusions = true;
-				break;
+				has_inclusions = true
+				break
 			else
 			end
 		end
 
-		local kinds = vim.tbl_filter(function (item)
+		local kinds = vim.tbl_filter(function(item)
 			for _, rule in ipairs(lang_filter) do
 				if string.match(rule, "^!") and string.match(rule, "^!(.+)") == item then
-					return false;
+					return false
 				end
 			end
 
-			return true;
-		end, vim.tbl_keys(map));
+			return true
+		end, vim.tbl_keys(map))
 
 		if has_inclusions then
-			kinds = vim.tbl_filter(function (item)
+			kinds = vim.tbl_filter(function(item)
 				for _, rule in ipairs(lang_filter) do
 					if rule == item then
-						return true;
+						return true
 					end
 				end
 
-				return false;
-			end, kinds);
+				return false
+			end, kinds)
 		end
 
-		local nodes = {};
+		local nodes = {}
 
 		for _, kind in ipairs(kinds) do
-			nodes = vim.list_extend(nodes, map[kind] or {});
+			nodes = vim.list_extend(nodes, map[kind] or {})
 		end
 
-		valid[language] = nodes;
+		valid[language] = nodes
 	end
 
-	return valid;
+	return valid
 
 	---|fE
 end
@@ -182,74 +185,74 @@ end
 renderer.range_modifiers = {
 	---|fS
 
-	markdown_atx_heading = function (range)
+	markdown_atx_heading = function(range)
 		local _r = vim.deepcopy(range)
-		_r.row_end = _r.row_end - 1;
+		_r.row_end = _r.row_end - 1
 
-		return _r;
+		return _r
 	end,
-	markdown_setext_heading = function (range)
+	markdown_setext_heading = function(range)
 		local _r = vim.deepcopy(range)
-		_r.row_end = _r.row_end - 1;
+		_r.row_end = _r.row_end - 1
 
-		return _r;
+		return _r
 	end,
-	markdown_code_block = function (range)
+	markdown_code_block = function(range)
 		local _r = vim.deepcopy(range)
-		_r.row_end = _r.row_end - 1;
+		_r.row_end = _r.row_end - 1
 
-		return _r;
+		return _r
 	end,
-	markdown_block_quote = function (range)
+	markdown_block_quote = function(range)
 		local _r = vim.deepcopy(range)
-		_r.row_end = _r.row_end - 1;
+		_r.row_end = _r.row_end - 1
 
-		return _r;
+		return _r
 	end,
-	markdown_hr = function (range)
+	markdown_hr = function(range)
 		local _r = vim.deepcopy(range)
-		_r.row_end = _r.row_end - 1;
+		_r.row_end = _r.row_end - 1
 
-		return _r;
+		return _r
 	end,
-	markdown_list_item = function (range)
+	markdown_list_item = function(range)
 		local _r = vim.deepcopy(range)
-		_r.row_end = _r.row_end - 1;
+		_r.row_end = _r.row_end - 1
 
-		return _r;
+		return _r
 	end,
-	markdown_metadata_minus = function (range)
+	markdown_metadata_minus = function(range)
 		local _r = vim.deepcopy(range)
-		_r.row_end = _r.row_end - 1;
+		_r.row_end = _r.row_end - 1
 
-		return _r;
+		return _r
 	end,
-	markdown_metadata_plus = function (range)
+	markdown_metadata_plus = function(range)
 		local _r = vim.deepcopy(range)
-		_r.row_end = _r.row_end - 1;
+		_r.row_end = _r.row_end - 1
 
-		return _r;
+		return _r
 	end,
-	markdown_table = function (range)
+	markdown_table = function(range)
 		local _r = vim.deepcopy(range)
-		_r.row_end = _r.row_end - 1;
+		_r.row_end = _r.row_end - 1
 
-		return _r;
-	end
+		return _r
+	end,
 
 	---|fE
-};
+}
 
 --- Fixes node ranges for `hybrid mode`.
 ---@param class string
 ---@param range markview.parsed.range
 ---@return markview.parsed.range
-renderer.fix_range = function (class, range)
+renderer.fix_range = function(class, range)
 	if renderer.range_modifiers[class] == nil then
-		return range;
+		return range
 	end
 
-	return renderer.range_modifiers[class](range);
+	return renderer.range_modifiers[class](range)
 end
 
 --- Filters provided content.
@@ -258,51 +261,51 @@ end
 ---@param filter? markview.config.preview.raw
 ---@param clear [ integer, integer ]
 ---@return table
-renderer.filter = function (content, filter, clear)
+renderer.filter = function(content, filter, clear)
 	---|fS
 
 	--- Checks if `pos` is inside of `range`.
 	---@param range markview.parsed.range
 	---@param pos [ integer, integer ]
 	---@return boolean
-	local within = function (range, pos)
+	local within = function(range, pos)
 		---|fS
 
 		if type(range) ~= "table" then
-			return false;
+			return false
 		elseif type(range.row_start) ~= "number" or type(range.row_end) ~= "number" then
-			return false;
+			return false
 		elseif vim.islist(pos) == false then
-			return false;
+			return false
 		elseif type(pos[1]) ~= "number" or type(pos[2]) ~= "number" then
-			return false;
+			return false
 		elseif pos[1] >= range.row_start and pos[2] <= range.row_end then
-			return true;
+			return true
 		end
 
-		return false;
+		return false
 
 		---|fE
 	end
 
 	---@type [ integer, integer ] Range to clear.
-	local clear_range = vim.deepcopy(clear);
+	local clear_range = vim.deepcopy(clear)
 
 	--- Updates the range to clear.
 	---@param new [ integer, integer ]
-	local range_update = function (new)
+	local range_update = function(new)
 		if new[1] <= clear_range[1] and new[2] >= clear_range[2] then
-			clear_range[1] = new[1];
-			clear_range[2] = new[2];
+			clear_range[1] = new[1]
+			clear_range[2] = new[2]
 		end
 	end
 
 	--- Node filters.
 	---@type markview.config.preview.raw
-	local result_filters = _filter(filter);
+	local result_filters = _filter(filter)
 
 	---@type { [string]: table }
-	local indexes = {};
+	local indexes = {}
 
 	-- Create a range to clear.
 	for lang, items in pairs(content) do
@@ -310,21 +313,21 @@ renderer.filter = function (content, filter, clear)
 
 		--- Filter for this language.
 		---@type string[]?
-		local lang_filter = result_filters[lang];
+		local lang_filter = result_filters[lang]
 
 		if lang_filter == nil then
-			goto continue;
+			goto continue
 		end
 
-		indexes[lang] = {};
+		indexes[lang] = {}
 
 		for n, node in ipairs(items) do
 			if vim.list_contains(lang_filter, node.class) then
-				local range = renderer.fix_range(node.class, node.range);
-				table.insert(indexes[lang], { n, range, node.class });
+				local range = renderer.fix_range(node.class, node.range)
+				table.insert(indexes[lang], { n, range, node.class })
 
 				if within(node.range, clear_range) == true then
-					range_update({ range.row_start, range.row_end });
+					range_update({ range.row_start, range.row_end })
 				end
 			end
 		end
@@ -340,21 +343,21 @@ renderer.filter = function (content, filter, clear)
 
 		--- Amount of nodes removed in this language.
 		--- Used for offsetting the index for later nodes.
-		local removed = 0;
+		local removed = 0
 
 		for _, ref in ipairs(references) do
-			local range = ref[2];
+			local range = ref[2]
 
 			if range.row_start >= clear_range[1] and range.row_end <= clear_range[2] then
-				table.remove(content[lang], ref[1] - removed);
-				removed = removed + 1;
+				table.remove(content[lang], ref[1] - removed)
+				removed = removed + 1
 			end
 		end
 
 		---|fE
 	end
 
-	return content;
+	return content
 
 	---|fE
 end
@@ -362,7 +365,7 @@ end
 --- Renders things
 ---@param buffer integer
 ---@param parsed_content markview.parsed
-renderer.render = function (buffer, parsed_content)
+renderer.render = function(buffer, parsed_content)
 	---|fS
 
 	local _renderers = {
@@ -374,17 +377,18 @@ renderer.render = function (buffer, parsed_content)
 		yaml = require("markview.renderers.yaml"),
 		typst = require("markview.renderers.typst"),
 		strictdoc = require("markview.renderers.strictdoc"),
-	};
+		rst = require("markview.renderers.rst"),
+	}
 
-	renderer.cache = {};
+	renderer.cache = {}
 
 	---@type table<integer, boolean>
-	local heading_ranges = {};
+	local heading_ranges = {}
 
 	for _, entry in ipairs(parsed_content.markdown or {}) do
 		if entry.class == "markdown_atx_heading" or entry.class == "markdown_setext_heading" then
 			for r = entry.range.row_start, entry.range.row_end, 1 do
-				heading_ranges[r] = true;
+				heading_ranges[r] = true
 			end
 		end
 	end
@@ -392,15 +396,15 @@ renderer.render = function (buffer, parsed_content)
 	---|fS, "chore, Announce start of rendering"
 
 	---@type integer
-	local start = vim.uv.hrtime();
+	local start = vim.uv.hrtime()
 
 	health.print({
 		from = "renderer.lua",
 		fn = "render()",
 
 		message = string.format("Rendering: %d", buffer),
-		nest = true
-	});
+		nest = true,
+	})
 
 	---|fE
 
@@ -416,46 +420,46 @@ renderer.render = function (buffer, parsed_content)
 		---| markview.parsed.yaml[]
 
 		if _renderers[lang] then
-			local c = _renderers[lang].render(buffer, content, lang == "markdown_inline" and heading_ranges or nil);
-			renderer.cache = vim.tbl_extend("force", renderer.cache, c or {});
+			local c = _renderers[lang].render(buffer, content, lang == "markdown_inline" and heading_ranges or nil)
+			renderer.cache = vim.tbl_extend("force", renderer.cache, c or {})
 		end
 	end
 
 	---|fS "chore: Announce end of main render"
 
-	local post = vim.uv.hrtime();
+	local post = vim.uv.hrtime()
 
 	health.print({
 		from = "renderer.lua",
 		fn = "render()",
 
-		message = string.format("Render(main): %dms", (post - start) / 1e6)
-	});
+		message = string.format("Render(main): %dms", (post - start) / 1e6),
+	})
 
 	---|fE
 
 	for lang, content in pairs(renderer.cache) do
 		if _renderers[lang] then
-			_renderers[lang].post_render(buffer, content);
+			_renderers[lang].post_render(buffer, content)
 		end
 	end
 
 	---|fS "chore: Announce end of rendering"
-	local now = vim.uv.hrtime();
+	local now = vim.uv.hrtime()
 
 	health.print({
 		from = "renderer.lua",
 		fn = "render()",
 
-		message = string.format("Render(post): %dms", (now - post) / 1e6)
-	});
+		message = string.format("Render(post): %dms", (now - post) / 1e6),
+	})
 	health.print({
 		from = "renderer.lua",
 		fn = "render()",
 
 		message = string.format("Rendering total(%d): %dms", buffer, (now - start) / 1e6),
-		back = true
-	});
+		back = true,
+	})
 
 	---|fE
 
@@ -467,22 +471,23 @@ end
 ---@param from? integer
 ---@param to? integer
 ---@param hybrid_mode? boolean
-renderer.clear = function (buffer, from, to, hybrid_mode)
+renderer.clear = function(buffer, from, to, hybrid_mode)
 	---|fS
 
 	local _renderers = {
-		comment = require("markview.renderers.comment");
-		html = require("markview.renderers.html");
-		markdown = require("markview.renderers.markdown");
-		markdown_inline = require("markview.renderers.markdown_inline");
-		latex = require("markview.renderers.latex");
-		yaml = require("markview.renderers.yaml");
-		typst = require("markview.renderers.typst");
+		comment = require("markview.renderers.comment"),
+		html = require("markview.renderers.html"),
+		markdown = require("markview.renderers.markdown"),
+		markdown_inline = require("markview.renderers.markdown_inline"),
+		latex = require("markview.renderers.latex"),
+		yaml = require("markview.renderers.yaml"),
+		typst = require("markview.renderers.typst"),
 		strictdoc = require("markview.renderers.strictdoc"),
-	};
+		rst = require("markview.renderers.rst"),
+	}
 
-	local langs = vim.tbl_keys(_renderers);
-	local start = vim.uv.hrtime();
+	local langs = vim.tbl_keys(_renderers)
+	local start = vim.uv.hrtime()
 
 	---|fS "chore: Announce start of clearing"
 
@@ -491,28 +496,28 @@ renderer.clear = function (buffer, from, to, hybrid_mode)
 		fn = "clear()",
 
 		message = string.format("Clearing: %d", buffer),
-		nest = true
-	});
+		nest = true,
+	})
 
 	---|fE
 
 	for _, lang in ipairs(langs) do
 		if _renderers[lang] then
-			_renderers[lang].clear(buffer, from, to, hybrid_mode);
+			_renderers[lang].clear(buffer, from, to, hybrid_mode)
 		end
 	end
 
 	---|fS "chore: Announce end of clearing"
 
-	local now = vim.uv.hrtime();
+	local now = vim.uv.hrtime()
 
 	health.print({
 		from = "renderer.lua",
 		fn = "clear()",
 
 		message = string.format("Clearing total(%d): %dms", buffer, (now - start) / 1e6),
-		back = true
-	});
+		back = true,
+	})
 
 	---|fE
 
@@ -523,37 +528,37 @@ end
 ---@param content table[]
 ---@return integer
 ---@return integer
-renderer.get_range = function (content)
+renderer.get_range = function(content)
 	---|fS
 
-	local from, to = nil, nil;
+	local from, to = nil, nil
 	local ignore_nodes = {
-		markdown = { "markdown_section" }
+		markdown = { "markdown_section" },
 	}
 
 	for lang, lang_items in pairs(content) do
 		for _, item in ipairs(lang_items) do
 			if vim.list_contains(ignore_nodes[lang] or {}, item.class) then
-				goto continue;
+				goto continue
 			end
 
-			local range = renderer.fix_range(item.class, vim.deepcopy(item.range));
+			local range = renderer.fix_range(item.class, vim.deepcopy(item.range))
 
 			if not from or range.row_start < from then
-				from = range.row_start;
+				from = range.row_start
 			end
 
 			if not to or range.row_end > to then
-				to = range.row_end;
+				to = range.row_end
 			end
 
-		    ::continue::
+			::continue::
 		end
 	end
 
-	return from, to;
+	return from, to
 
 	---|fE
 end
 
-return renderer;
+return renderer

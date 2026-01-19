@@ -201,7 +201,7 @@ spec.default = {
 		debounce = 150,
 		icon_provider = "internal",
 
-		filetypes = { "markdown", "quarto", "rmd", "typst", "strictdoc" },
+		filetypes = { "markdown", "quarto", "rmd", "typst", "strictdoc", "rst" },
 		ignore_buftypes = { "nofile" },
 		condition = function(buffer)
 			local is_enabled = spec.get({ "experimental", "fancy_comments" }, {
@@ -247,6 +247,7 @@ spec.__external_config = {
 	"typst",
 	"yaml",
 	"strictdoc",
+	"rst",
 }
 
 spec.config = vim.deepcopy(spec.default)
